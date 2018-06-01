@@ -42,10 +42,10 @@ const Tab = (($) => {
     DROPDOWN              : '.dropdown',
     NAV_LIST_GROUP        : '.nav, .list-group',
     ACTIVE                : '.active',
-    ACTIVE_UL             : '> li > .active',
+    ACTIVE_UL             : ':scope > li > .active',
     DATA_TOGGLE           : '[data-toggle="tab"], [data-toggle="pill"], [data-toggle="list"]',
     DROPDOWN_TOGGLE       : '.dropdown-toggle',
-    DROPDOWN_ACTIVE_CHILD : '> .dropdown-menu .active'
+    DROPDOWN_ACTIVE_CHILD : ':scope > .dropdown-menu .active'
   }
 
   /**
@@ -82,7 +82,7 @@ const Tab = (($) => {
 
       if (listElement) {
         const itemSelector = listElement.nodeName === 'UL' ? Selector.ACTIVE_UL : Selector.ACTIVE
-        previous = $.makeArray($(listElement).find(itemSelector))
+        previous = [].slice.call(listElement.querySelectorAll(itemSelector))
         previous = previous[previous.length - 1]
       }
 
@@ -106,7 +106,7 @@ const Tab = (($) => {
       }
 
       if (selector) {
-        target = $(selector)[0]
+        target = document.querySelector(selector)
       }
 
       this._activate(
@@ -144,7 +144,7 @@ const Tab = (($) => {
     _activate(element, container, callback) {
       let activeElements
       if (container.nodeName === 'UL') {
-        activeElements = $(container).find(Selector.ACTIVE_UL)
+        activeElements = container.querySelectorAll(Selector.ACTIVE_UL)
       } else {
         activeElements = $(container).children(Selector.ACTIVE)
       }
@@ -174,9 +174,9 @@ const Tab = (($) => {
       if (active) {
         $(active).removeClass(`${ClassName.SHOW} ${ClassName.ACTIVE}`)
 
-        const dropdownChild = $(active.parentNode).find(
+        const dropdownChild = active.parentNode.querySelector(
           Selector.DROPDOWN_ACTIVE_CHILD
-        )[0]
+        )
 
         if (dropdownChild) {
           $(dropdownChild).removeClass(ClassName.ACTIVE)
@@ -199,7 +199,8 @@ const Tab = (($) => {
           $(element.parentNode).hasClass(ClassName.DROPDOWN_MENU)) {
         const dropdownElement = $(element).closest(Selector.DROPDOWN)[0]
         if (dropdownElement) {
-          $(dropdownElement).find(Selector.DROPDOWN_TOGGLE).addClass(ClassName.ACTIVE)
+          const dropdownToggleList = [].slice.call(dropdownElement.querySelectorAll(Selector.DROPDOWN_TOGGLE))
+          $(dropdownToggleList).addClass(ClassName.ACTIVE)
         }
 
         element.setAttribute('aria-expanded', true)
